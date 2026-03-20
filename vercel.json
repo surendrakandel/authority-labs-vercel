@@ -1,0 +1,22 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "pnpm run build",
+  "outputDirectory": "build",
+  "cleanUrls": true,
+  "trailingSlash": true,
+  "build": {
+    "env": {
+      "CMS_ORIGIN": "https://mendpulse.com",
+      "BLOG_TAG": "vercel"
+    }
+  },
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/.*",
+      "dest": "/404.html"
+    }
+  ]
+}

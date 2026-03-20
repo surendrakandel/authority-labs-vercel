@@ -1,0 +1,53 @@
+@import url("https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap");
+@import "tailwindcss";
+
+@plugin 'daisyui';
+@plugin 'daisyui/theme' {
+  name: "genvtest";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+
+  --color-base-100: hsl(160 20% 99%);
+  --color-base-200: hsl(150 18% 96%);
+  --color-base-300: hsl(148 14% 90%);
+  --color-base-content: hsl(212 27% 14%);
+
+  --color-primary: hsl(147 100% 26%);
+  --color-primary-content: hsl(0 0% 100%);
+
+  --color-secondary: hsl(151 28% 92%);
+  --color-secondary-content: hsl(212 27% 14%);
+
+  --color-accent: hsl(162 75% 39%);
+  --color-accent-content: hsl(0 0% 100%);
+
+  --color-neutral: hsl(212 27% 14%);
+  --color-neutral-content: hsl(150 18% 97%);
+
+  --color-info: hsl(197 37% 24%);
+  --color-info-content: hsl(0 0% 100%);
+
+  --color-success: hsl(162 68% 36%);
+  --color-success-content: hsl(0 0% 100%);
+
+  --color-warning: hsl(42 92% 58%);
+  --color-warning-content: hsl(212 27% 14%);
+
+  --color-error: hsl(0 73% 54%);
+  --color-error-content: hsl(0 0% 100%);
+
+  --radius-selector: 0.75rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1rem;
+
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';

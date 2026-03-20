@@ -1,0 +1,162 @@
+
+
+
+@import "./font.css";
+@import "tailwindcss";
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+	--base-hue: 265;
+
+	--radius-base: 0.275rem;
+
+	--background-inset: oklch(0.9764 0.0013 var(--base-hue));
+	--background: oklch(1 0 0);
+	--background-muted: oklch(0.956 0.002 var(--base-hue));
+	--fixed-light: oklch(1 0 0);
+	--fixed-dark: oklch(0.183 0.006 var(--base-hue));
+	--foreground: oklch(0.1881 0.006 var(--base-hue));
+	--foreground-muted: oklch(0.5493 0.0081 var(--base-hue));
+	--accent: oklch(0.6996 0.201959 44.4414);
+	--accent-secondary: oklch(0.5096 0.151959 44.4414);
+	--border: oklch(0.4224 0.0013 var(--base-hue) / 0.1);
+
+	--shadow-xs: 0px 1px 1px -0.5px rgba(0, 0, 0, 0.06);
+	--shadow-sm:
+		0px 1px 1px -0.5px rgba(0, 0, 0, 0.06),
+		0px 3px 3px -1.5px rgba(0, 0, 0, 0.06);
+	--shadow-md:
+		0px 1px 1px -0.5px rgba(0, 0, 0, 0.06),
+		0px 3px 3px -1.5px rgba(0, 0, 0, 0.06), 0px 6px 6px -3px rgba(0, 0, 0, 0.06);
+	--shadow-lg:
+		0px 1px 1px -0.5px rgba(0, 0, 0, 0.06),
+		0px 3px 3px -1.5px rgba(0, 0, 0, 0.06),
+		0px 6px 6px -3px rgba(0, 0, 0, 0.06), 0px 12px 12px -6px rgba(0, 0, 0, 0.06);
+	--shadow-xl:
+		0px 1px 1px -0.5px rgba(0, 0, 0, 0.06),
+		0px 3px 3px -1.5px rgba(0, 0, 0, 0.06),
+		0px 6px 6px -3px rgba(0, 0, 0, 0.06),
+		0px 12px 12px -6px rgba(0, 0, 0, 0.06),
+		0px 24px 24px -12px rgba(0, 0, 0, 0.06);
+	--shadow-2xl:
+		0px 1px 1px -0.5px rgba(0, 0, 0, 0.06),
+		0px 3px 3px -1.5px rgba(0, 0, 0, 0.06),
+		0px 6px 6px -3px rgba(0, 0, 0, 0.06),
+		0px 12px 12px -6px rgba(0, 0, 0, 0.06),
+		0px 24px 24px -12px rgba(0, 0, 0, 0.06),
+		0px 48px 48px -24px rgba(0, 0, 0, 0.06);
+	--text-heading: "Graphik","Cal Sans", "Inter", sans-serif;
+	--text-body: "Mabry Pro", "Cal Sans","DM Sans", "Canva Sans", "Inter", sans-serif;
+	--text-heading-weight: 500;
+	--red: #ff282e;
+	--brown: #34090a;
+	--brown-text: #ffc1c3;
+	--text-sm: 1rem;
+
+}
+
+.dark {
+	--background-inset: oklch(0.1822 0.0044 var(--base-hue));
+	--background: oklch(0.2178 0.0056 var(--base-hue));
+	--background-muted: oklch(0.261 0.007 var(--base-hue));
+	--foreground: oklch(1 0 0);
+	--foreground-muted: oklch(0.6699 0.0081 var(--base-hue));
+	--accent: oklch(0.6996 0.181959 44.4414);
+	--accent-secondary: oklch(0.5096 0.131959 44.4414);
+	--border: oklch(0.928 0.013 var(--base-hue) / 0.05);
+}
+
+@theme {
+	--color-fixed-light: var(--fixed-light);
+	--color-fixed-dark: var(--fixed-dark);
+	--color-background-inset: var(--background-inset);
+	--color-background: var(--background);
+	--color-background-muted: var(--background-muted);
+	--color-foreground: var(--foreground);
+	--color-foreground-muted: var(--foreground-muted);
+	--color-accent: var(--accent);
+	--color-accent-secondary: var(--accent-secondary);
+	--color-border: var(--border);
+
+	--radius-xs: calc(var(--radius-base) * 1);
+	--radius-sm: calc(var(--radius-base) * 2);
+	--radius-md: calc(var(--radius-base) * 3);
+	--radius-lg: calc(var(--radius-base) * 4);
+	--radius-xl: calc(var(--radius-base) * 6);
+	--radius-2xl: calc(var(--radius-base) * 8);
+	--radius-3xl: calc(var(--radius-base) * 12);
+	--radius-4xl: calc(var(--radius-base) * 16);
+	--radius-full: 9999px;
+
+	--shadow-xs: var(--shadow-xs);
+	--shadow-sm: var(--shadow-sm);
+	--shadow-md: var(--shadow-md);
+	--shadow-lg: var(--shadow-lg);
+	--shadow-xl: var(--shadow-xl);
+	--shadow-2xl: var(--shadow-2xl);
+}
+ @plugin "daisyui" {
+  themes: light --default, dark --prefersdark;
+  themes: light --default;
+ }
+ body {
+  font-family: var(--text-body);
+  color: #1e1e1e;
+  font-size: 1rem;
+  /* background-color:#faf6f0; */
+  background-color: #f5f2ed;
+  font-weight: 400;
+  line-height: 1.75;
+}
+@media screen and (min-width: 768px){
+  :root{
+    --text-sm: .875rem;
+  }
+  body {
+    font-size: .9rem;
+  }
+}
+.page-nav{
+  font-family: "Graphik";
+  font-weight: 400;
+}
+.sharp{
+  font-family: "Sharp Grotesk";
+  font-weight: 500;
+}
+.text-heading{
+  font-family: var(--text-heading);
+  font-weight: 500;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--text-heading);
+  font-weight: var(--text-heading-weight);
+  line-height: 1.2;
+}
+.h1{
+  font-size: clamp(2.5rem, 2.5vw, 2.5rem);
+  line-height: 0.95;
+}
+.h2{
+  font-size: clamp(2.5rem, 4vw, 3.5rem);  
+  line-height: 1.2;
+}
+.h3{
+  font-size: clamp(1.5rem, 2vw, 2rem);
+  line-height: 1.2;
+}
+.h4{
+  font-size: clamp(1.25rem, 1.5vw, 1.5rem);
+  line-height: 1.2;
+}
+.h5{
+  font-size: clamp(1rem, 1vw, 1.25rem);
+  line-height: 1.2;
+}
+.h6{
+  font-size: clamp(0.75rem, 0.75vw, 1rem);
+  line-height: 1.2;
+
+}
