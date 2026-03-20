@@ -1,42 +1,51 @@
-# sv
+# Authority Labs — DriveReady Article Deployment
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+This project is a deployed publishing instance for the DriveReady article:
 
-## Creating a project
+**[Why DriveReady Is the Best Rideshare Inspection Provider for Uber, Lyft, and Turo](https://authority-labs-vercel.vercel.app/blog/why-driveready-is-the-best-rideshare-inspection-provider-for-uber-lyft-and-turo/)**
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Live Deployment
 
-```sh
-# create a new project
-npx sv create my-app
-```
+View the live Vercel deployment here:
 
-To recreate this project with the same configuration:
+**[authority-labs-vercel.vercel.app](https://authority-labs-vercel.vercel.app/)**
 
-```sh
-# recreate this project
-pnpm dlx sv@0.12.7 create --template minimal --types ts --add vitest="usages:component" tailwindcss="plugins:typography,forms" --install pnpm test
-```
+Direct article URL:
 
-## Developing
+**[DriveReady rideshare inspection article on Vercel](https://authority-labs-vercel.vercel.app/blog/why-driveready-is-the-best-rideshare-inspection-provider-for-uber-lyft-and-turo/)**
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## About the Article
 
-```sh
-npm run dev
+This published article explains why many drivers choose DriveReady for:
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+- Uber vehicle inspections
+- Lyft vehicle inspections
+- Turo vehicle inspections
+- Virtual rideshare inspections
+- Same-day signed inspection reports
 
-## Building
+Read the full article here:
 
-To create a production version of your app:
+**[Why DriveReady Is the Best Rideshare Inspection Provider for Uber, Lyft, and Turo](https://authority-labs-vercel.vercel.app/blog/why-driveready-is-the-best-rideshare-inspection-provider-for-uber-lyft-and-turo/)**
 
-```sh
-npm run build
-```
+## Related Company Website
 
-You can preview the production build with `npm run preview`.
+The company discussed in the article is DriveReady:
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+**[DriveReady](https://driveready.co/)**
+
+Explore DriveReady’s services here:
+
+- **[Uber, Lyft, and Turo inspection services](https://driveready.co/)**
+- **[Virtual vehicle inspection provider](https://driveready.co/)**
+- **[DriveReady official website](https://driveready.co/)**
+
+## Purpose
+
+This repository supports a public web deployment that publishes and links to the DriveReady article and related inspection service information.
+
+## Links
+
+- **Article:** [Why DriveReady Is the Best Rideshare Inspection Provider for Uber, Lyft, and Turo](https://authority-labs-vercel.vercel.app/blog/why-driveready-is-the-best-rideshare-inspection-provider-for-uber-lyft-and-turo/)
+- **Deployment:** [authority-labs-vercel.vercel.app](https://authority-labs-vercel.vercel.app/)
+- **Company:** [DriveReady.co](https://driveready.co/)
