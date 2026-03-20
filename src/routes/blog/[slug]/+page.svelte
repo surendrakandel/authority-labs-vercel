@@ -63,7 +63,7 @@
 
 {#if post}
   <section>
-    <article class="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-10 lg:px-12 bg-base-200">
+    <article class="my-12 mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-10 lg:px-12 bg-base-200">
       <div class="mb-6 sm:mb-8">
         <a
           data-sveltekit-reload
@@ -177,6 +177,12 @@
             {@html post.bodyHtml}
           </div>
         </div>
+        <p>
+          This publication is also included in the public
+          <a class="text-blue-600" href={`https://github.com/surendrakandel/authority-labs-vercel/blob/main/${post?.slug}.md`}>
+            Authority Labs article index on GitHub
+          </a>.
+        </p>
       </section>
     </article>
   </section>
