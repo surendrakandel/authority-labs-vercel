@@ -9,7 +9,8 @@ export default defineConfig({
 	plugins: [tailwindcss(), sveltekit(), articleMarkdownExport({
       buildDir: 'build',
       blogDir: 'blog',
-      outputDir: '.'
+      outputDir: '.',
+      fallbackArticleBaseUrl: 'https://authority-labs-vercel.vercel.app/blog/'
     })],
 	test: {
 		expect: { requireAssertions: true },

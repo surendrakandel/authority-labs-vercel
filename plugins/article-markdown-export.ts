@@ -10,6 +10,7 @@ type ArticleMarkdownExportOptions = {
   outputDir?: string;
   selectorCandidates?: string[];
   minTextLength?: number;
+  fallbackArticleBaseUrl?: string;
 };
 
 export function articleMarkdownExport(
@@ -18,6 +19,8 @@ export function articleMarkdownExport(
   const buildDir = options.buildDir ?? 'build';
   const blogDir = options.blogDir ?? 'blog';
   const outputDir = options.outputDir ?? 'article-md';
+  const fallbackArticleBaseUrl =
+    options.fallbackArticleBaseUrl ?? 'https://authority-labs-vercel.vercel.app/blog/';
   const selectorCandidates = options.selectorCandidates ?? [
     '[data-article-body]',
     'main article',
@@ -60,7 +63,10 @@ export function articleMarkdownExport(
       turndown.addRule('images-with-alt-fallback', {
         filter: 'img',
         replacement(_content, node) {
-          const el = node as any;
+          const el = node as unknown as {
+            getAttribute?: (name: string) => string | null;
+          };
+
           const alt = String(el.getAttribute?.('alt') || '').replace(/\|/g, '\\|');
           const src = String(el.getAttribute?.('src') || '');
           const title = el.getAttribute?.('title');
@@ -92,50 +98,37 @@ export function articleMarkdownExport(
           continue;
         }
 
-        container.find('script, style, noscript, nav, footer, header').remove();
-        container.find('[data-no-markdown-export="true"]').remove();
-
-        const contentHtml = container.html()?.trim();
-        if (!contentHtml) continue;
-
         const rawSlug = slugFromRelativeHtmlPath(rel);
+        const slug = sanitizeSlug(rawSlug);
 
         const title =
           $('meta[property="og:title"]').attr('content')?.trim() ||
           $('meta[name="twitter:title"]').attr('content')?.trim() ||
           $('h1').first().text().trim() ||
           $('title').text().trim() ||
-          rawSlug;
+          slug;
 
-        const description =
-          $('meta[name="description"]').attr('content')?.trim() ||
-          $('meta[property="og:description"]').attr('content')?.trim() ||
-          '';
+        const fileBaseName = ensureUniqueFileBaseName(slug, usedFileNames);
+        const fileName = `${fileBaseName}.md`;
+        const outFile = path.join(outRoot, fileName);
+        const fallbackArticleUrl = joinUrl(fallbackArticleBaseUrl, slug);
 
-        const publishedAt =
-          $('meta[property="article:published_time"]').attr('content')?.trim() || '';
+        container.find('script, style, noscript, nav, footer, header').remove();
+        container.find('[data-no-markdown-export="true"]').remove();
 
-        const canonical = $('link[rel="canonical"]').attr('href')?.trim() || '';
+        container.find('h1').first().remove();
+
+        rewriteAnchors($, container, fallbackArticleUrl);
+
+        const contentHtml = container.html()?.trim();
+        if (!contentHtml) continue;
 
         let markdown = turndown.turndown(contentHtml).trim();
         markdown = cleanupMarkdown(markdown);
 
-        const slug = sanitizeSlug(rawSlug || title);
-        const fileBaseName = ensureUniqueFileBaseName(slug, usedFileNames);
-        const fileName = `${fileBaseName}.md`;
-        const outFile = path.join(outRoot, fileName);
+        const output = `# ${escapeMarkdownTitle(title)}\n\n${markdown}\n`;
 
-        const frontmatter = buildFrontmatter({
-          slug,
-          title,
-          description,
-          publishedAt,
-          canonical,
-          sourcePath: normalizeSlashes(rel),
-          fileName
-        });
-
-        await fs.writeFile(outFile, `${frontmatter}\n${markdown}\n`, 'utf8');
+        await fs.writeFile(outFile, output, 'utf8');
         written++;
       }
 
@@ -149,47 +142,35 @@ export function articleMarkdownExport(
   };
 }
 
-function buildFrontmatter(input: {
-  slug: string;
-  title: string;
-  description?: string;
-  publishedAt?: string;
-  canonical?: string;
-  sourcePath?: string;
-  fileName?: string;
-}) {
-  const lines = [
-    '---',
-    `slug: ${yamlString(input.slug)}`,
-    `title: ${yamlString(input.title)}`
-  ];
+function rewriteAnchors(
+  $: cheerio.CheerioAPI,
+  container: cheerio.Cheerio<any>,
+  fallbackArticleUrl: string
+) {
+  container.find('a').each((_, el) => {
+    const node = $(el);
+    const href = String(node.attr('href') || '').trim();
 
-  if (input.description) {
-    lines.push(`description: ${yamlString(input.description)}`);
-  }
+    if (!href) {
+      node.attr('href', fallbackArticleUrl);
+      return;
+    }
 
-  if (input.publishedAt) {
-    lines.push(`publishedAt: ${yamlString(input.publishedAt)}`);
-  }
+    if (href.startsWith('https://')) {
+      return;
+    }
 
-  if (input.canonical) {
-    lines.push(`canonical: ${yamlString(input.canonical)}`);
-  }
-
-  if (input.sourcePath) {
-    lines.push(`sourcePath: ${yamlString(input.sourcePath)}`);
-  }
-
-  if (input.fileName) {
-    lines.push(`fileName: ${yamlString(input.fileName)}`);
-  }
-
-  lines.push('---', '');
-  return lines.join('\n');
+    node.attr('href', fallbackArticleUrl);
+  });
 }
 
-function yamlString(value: string) {
-  return `"${String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+function joinUrl(base: string, slug: string) {
+  const normalizedBase = base.endsWith('/') ? base : `${base}/`;
+  return `${normalizedBase}${slug}/`;
+}
+
+function escapeMarkdownTitle(value: string) {
+  return String(value).replace(/\r?\n/g, ' ').trim();
 }
 
 function normalizeSlashes(value: string) {
@@ -275,9 +256,7 @@ function pickBestContainer(
     }
   }
 
-  let best:
-    | { node: cheerio.Cheerio<any>; len: number }
-    | undefined;
+  let best: { node: cheerio.Cheerio<any>; len: number } | undefined;
 
   $('body *').each((_, el) => {
     const node = $(el);
