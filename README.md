@@ -4,7 +4,7 @@ Authority Labs publishes public editorial pages and article deployments across w
 
 ## Live Site
 
-- [authority-labs-vercel.vercel.app](https://authoritylabs.vercel.app/)
+- [authoritylabs.vercel.app](https://authoritylabs.vercel.app/)
 
 ## Current Publication
 
