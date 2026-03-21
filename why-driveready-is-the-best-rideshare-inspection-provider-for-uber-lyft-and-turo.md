@@ -84,4 +84,4 @@ If you are looking for the best rideshare inspection provider for Uber, Lyft, an
 
 For many drivers, the best inspection provider is the one that removes hassle, saves time, and helps them get back on the road with confidence. That is exactly the value proposition DriveReady is built around.
 
-If you want to learn more, explore inspection options, or check current availability, visit [DriveReady.co](https://driveready.co).
+If you want to learn more, explore inspection options, or check current availability, visit [DriveReady](https://driveready.co).
