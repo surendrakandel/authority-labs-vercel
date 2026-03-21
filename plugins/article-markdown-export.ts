@@ -1,5 +1,5 @@
 //@ts-nocheck
-// FILE: src/lib/vite/article-markdown-export.ts
+// FILE: src/plugins/article-markdown-export.ts
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import * as cheerio from 'cheerio';
@@ -17,9 +17,10 @@ type ArticleMarkdownExportOptions = {
 };
 
 type ExportedArticle = {
-  slug: string;
   title: string;
   liveUrl: string;
+  fileName: string;
+  fileLink: string;
 };
 
 export function articleMarkdownExport(
@@ -128,6 +129,7 @@ export function articleMarkdownExport(
 
         const fileBaseName = ensureUniqueFileBaseName(slug, usedFileNames);
         const fileName = `${fileBaseName}.md`;
+        const fileLink = buildLocalMarkdownLink(articleFilesDir, fileName);
         const outFile = path.join(articleOutputRoot, fileName);
 
         const exportContainer = container.clone();
@@ -149,9 +151,10 @@ export function articleMarkdownExport(
         await fs.writeFile(outFile, output, 'utf8');
 
         exportedArticles.push({
-          slug,
           title,
-          liveUrl
+          liveUrl,
+          fileName,
+          fileLink
         });
 
         written++;
@@ -175,12 +178,12 @@ async function writeArticlesIndex(filePath: string, articles: ExportedArticle[])
   const lines: string[] = ['# Article Index', ''];
 
   for (const article of sorted) {
-    lines.push(`- [${article.title}](${article.liveUrl})`);
+    lines.push(`### ${escapeMarkdownTitle(article.title)}`, '');
+    lines.push(`- [Website](${article.liveUrl})`);
+    lines.push(`- [Markdown file: ${article.fileName}](${article.fileLink})`, '');
   }
 
-  lines.push('');
-
-  await fs.writeFile(filePath, lines.join('\n'), 'utf8');
+  await fs.writeFile(filePath, lines.join('\n').trimEnd() + '\n', 'utf8');
 }
 
 function rewriteAnchors(
@@ -201,6 +204,18 @@ function rewriteAnchors(
 
     node.attr('href', fallbackArticleUrl);
   });
+}
+
+function buildLocalMarkdownLink(articleFilesDir: string, fileName: string) {
+  const normalizedDir = normalizeSlashes(articleFilesDir)
+    .replace(/^\.\/?/, '')
+    .replace(/\/+$/, '');
+
+  if (!normalizedDir || normalizedDir === '.') {
+    return `./${fileName}`;
+  }
+
+  return `./${normalizedDir}/${fileName}`;
 }
 
 function joinUrl(base: string, slug: string) {
