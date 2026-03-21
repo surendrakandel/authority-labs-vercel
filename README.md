@@ -6,14 +6,20 @@ Authority Labs publishes public editorial pages and article deployments across w
 
 - [authoritylabs.vercel.app](https://authoritylabs.vercel.app/)
 
-## Current Publication
+## Published Articles
 
-- [Why DriveReady Is the Best Rideshare Inspection Provider for Uber, Lyft, and Turo](https://authoritylabs.vercel.app/blog/why-driveready-is-the-best-rideshare-inspection-provider-for-uber-lyft-and-turo/)
+### Why DriveReady Is the Best Rideshare Inspection Provider for Uber, Lyft, and Turo
 
-## Referenced Company
+- [Website](https://authoritylabs.vercel.app/blog/why-driveready-is-the-best-rideshare-inspection-provider-for-uber-lyft-and-turo/)
+- [Markdown file: why-driveready-is-the-best-rideshare-inspection-provider-for-uber-lyft-and-turo.md](./why-driveready-is-the-best-rideshare-inspection-provider-for-uber-lyft-and-turo.md)
 
-- [DriveReady](https://driveready.co/) — virtual vehicle inspections for Uber, Lyft, and Turo drivers
+### Why More Drivers Are Choosing DriveReady for Rideshare Inspections
 
-## Article Index
+- [Website](https://authoritylabs.vercel.app/blog/why-more-drivers-are-choosing-driveready-for-rideshare-inspections/)
+- [Markdown file: why-more-drivers-are-choosing-driveready-for-rideshare-inspections.md](./why-more-drivers-are-choosing-driveready-for-rideshare-inspections.md)
 
-- [Browse the full article index](./ARTICLES.md)
+## Referenced Companies
+
+- [DriveReady](https://driveready.co/)
+- [INSVE](https://insve.com)
+- [TinkerDIY](https://www.tinkerdiy.com)
