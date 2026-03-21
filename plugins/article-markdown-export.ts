@@ -4,13 +4,41 @@ import * as cheerio from 'cheerio';
 import TurndownService from 'turndown';
 import type { Plugin } from 'vite';
 
+type RelatedPage = {
+  label: string;
+  url: string;
+};
+
+type OrganizationProfile = {
+  name: string;
+  url: string;
+  about: string;
+  relatedPages?: RelatedPage[];
+};
+
 type ArticleMarkdownExportOptions = {
   buildDir?: string;
   blogDir?: string;
-  outputDir?: string;
+  articleFilesDir?: string;
+  articlesIndexFile?: string;
   selectorCandidates?: string[];
   minTextLength?: number;
   fallbackArticleBaseUrl?: string;
+  organizations?: Record<string, OrganizationProfile>;
+};
+
+type ExportedArticle = {
+  slug: string;
+  title: string;
+  summary: string;
+  fileName: string;
+  fileLink: string;
+  liveUrl: string;
+  deploymentUrl: string;
+  organizationName?: string;
+  organizationUrl?: string;
+  organizationAbout?: string;
+  relatedPages: RelatedPage[];
 };
 
 export function articleMarkdownExport(
@@ -18,9 +46,11 @@ export function articleMarkdownExport(
 ): Plugin {
   const buildDir = options.buildDir ?? 'build';
   const blogDir = options.blogDir ?? 'blog';
-  const outputDir = options.outputDir ?? 'article-md';
+  const articleFilesDir = options.articleFilesDir ?? '.';
+  const articlesIndexFile = options.articlesIndexFile ?? 'ARTICLES.md';
   const fallbackArticleBaseUrl =
-    options.fallbackArticleBaseUrl ?? 'https://authority-labs-vercel.vercel.app/blog/';
+    options.fallbackArticleBaseUrl ?? 'https://authoritylabs.vercel.app/blog/';
+  const organizations = options.organizations ?? {};
   const selectorCandidates = options.selectorCandidates ?? [
     '[data-article-body]',
     'main article',
@@ -37,7 +67,8 @@ export function articleMarkdownExport(
     async closeBundle() {
       const root = process.cwd();
       const inputRoot = path.resolve(root, buildDir, blogDir);
-      const outRoot = path.resolve(root, outputDir);
+      const articleOutputRoot = path.resolve(root, articleFilesDir);
+      const articlesIndexPath = path.resolve(root, articlesIndexFile);
 
       const htmlFiles = await findHtmlFiles(inputRoot);
       if (htmlFiles.length === 0) {
@@ -47,7 +78,7 @@ export function articleMarkdownExport(
         return;
       }
 
-      await fs.mkdir(outRoot, { recursive: true });
+      await fs.mkdir(articleOutputRoot, { recursive: true });
 
       const turndown = new TurndownService({
         headingStyle: 'atx',
@@ -79,6 +110,7 @@ export function articleMarkdownExport(
         }
       });
 
+      const exportedArticles: ExportedArticle[] = [];
       const usedFileNames = new Set<string>();
       let written = 0;
 
@@ -108,19 +140,51 @@ export function articleMarkdownExport(
           $('title').text().trim() ||
           slug;
 
+        const description =
+          $('meta[name="description"]').attr('content')?.trim() ||
+          $('meta[property="og:description"]').attr('content')?.trim() ||
+          '';
+
+        const canonical =
+          $('link[rel="canonical"]').attr('href')?.trim() || '';
+
+        const liveUrl = canonical.startsWith('https://')
+          ? canonical
+          : joinUrl(fallbackArticleBaseUrl, slug);
+
+        const deploymentUrl = getOrigin(liveUrl) || getOrigin(fallbackArticleBaseUrl) || '';
+
+        const externalLinks = extractExternalHttpsLinks($, container, deploymentUrl);
+        const primaryExternalLink = externalLinks[0];
+        const organizationProfile = getOrganizationProfile(primaryExternalLink?.href, organizations);
+
+        const organizationName =
+          organizationProfile?.name ||
+          (primaryExternalLink ? deriveOrganizationName(primaryExternalLink) : undefined);
+
+        const organizationUrl =
+          organizationProfile?.url || primaryExternalLink?.href || undefined;
+
+        const organizationAbout =
+          organizationProfile?.about ||
+          (organizationName
+            ? `${organizationName} is referenced in this article as the organization connected to the service, product, or subject discussed on the page.`
+            : undefined);
+
         const fileBaseName = ensureUniqueFileBaseName(slug, usedFileNames);
         const fileName = `${fileBaseName}.md`;
-        const outFile = path.join(outRoot, fileName);
-        const fallbackArticleUrl = joinUrl(fallbackArticleBaseUrl, slug);
+        const fileLink = buildLocalMarkdownLink(articleFilesDir, fileName);
+        const outFile = path.join(articleOutputRoot, fileName);
 
-        container.find('script, style, noscript, nav, footer, header').remove();
-        container.find('[data-no-markdown-export="true"]').remove();
+        const exportContainer = container.clone();
 
-        container.find('h1').first().remove();
+        exportContainer.find('script, style, noscript, nav, footer, header').remove();
+        exportContainer.find('[data-no-markdown-export="true"]').remove();
+        exportContainer.find('h1').first().remove();
 
-        rewriteAnchors($, container, fallbackArticleUrl);
+        rewriteAnchors($, exportContainer, liveUrl);
 
-        const contentHtml = container.html()?.trim();
+        const contentHtml = exportContainer.html()?.trim();
         if (!contentHtml) continue;
 
         let markdown = turndown.turndown(contentHtml).trim();
@@ -129,17 +193,234 @@ export function articleMarkdownExport(
         const output = `# ${escapeMarkdownTitle(title)}\n\n${markdown}\n`;
 
         await fs.writeFile(outFile, output, 'utf8');
+
+        const relatedPages = buildRelatedPages({
+          liveUrl,
+          organizationName,
+          organizationUrl,
+          organizationProfile,
+          externalLinks
+        });
+
+        exportedArticles.push({
+          slug,
+          title,
+          summary: buildArticleSummary(container, description, title),
+          fileName,
+          fileLink,
+          liveUrl,
+          deploymentUrl,
+          organizationName,
+          organizationUrl,
+          organizationAbout,
+          relatedPages
+        });
+
         written++;
       }
 
+      await writeArticlesIndex(articlesIndexPath, exportedArticles);
+
       console.log(
-        `[article-markdown-export] Wrote ${written} markdown file(s) to ${path.relative(
+        `[article-markdown-export] Wrote ${written} article markdown file(s) and updated ${path.relative(
           root,
-          outRoot
+          articlesIndexPath
         )}`
       );
     }
   };
+}
+
+async function writeArticlesIndex(filePath: string, articles: ExportedArticle[]) {
+  const grouped = groupArticlesByOrganization(articles);
+
+  const lines: string[] = [
+    '# Article Index',
+    '',
+    'This document lists published articles, live deployments, and the organizations referenced in each piece.',
+    '',
+    '---',
+    ''
+  ];
+
+  for (const [groupName, groupArticles] of grouped) {
+    lines.push(`## ${groupName}`, '');
+
+    for (const article of groupArticles) {
+      lines.push(`### ${article.title}`, '');
+      lines.push(article.summary, '');
+
+      lines.push('**Read the article**  ');
+      lines.push(`[${article.title}](${article.liveUrl})`, '');
+
+      lines.push('**Article file**  ');
+      lines.push(`[${article.fileName}](${article.fileLink})`, '');
+
+      lines.push('**Live deployment**  ');
+      lines.push(
+        `[${formatDeploymentLabel(article.deploymentUrl)}](${article.deploymentUrl})`,
+        ''
+      );
+
+      if (article.organizationName && article.organizationUrl) {
+        lines.push('**Organization referenced in the article**  ');
+        lines.push(`[${article.organizationName}](${article.organizationUrl})`, '');
+      }
+
+      if (article.organizationAbout) {
+        lines.push('**About the company**  ');
+        lines.push(article.organizationAbout, '');
+      }
+
+      if (article.relatedPages.length > 0) {
+        lines.push('**Related pages**');
+
+        for (const related of article.relatedPages) {
+          lines.push(`- [${related.label}](${related.url})`);
+        }
+
+        lines.push('');
+      }
+    }
+  }
+
+  await fs.writeFile(filePath, `${lines.join('\n').trim()}\n`, 'utf8');
+}
+
+function groupArticlesByOrganization(articles: ExportedArticle[]) {
+  const grouped = new Map<string, ExportedArticle[]>();
+
+  const sorted = [...articles].sort((a, b) => a.title.localeCompare(b.title));
+
+  for (const article of sorted) {
+    const key = article.organizationName || 'Publications';
+    const existing = grouped.get(key) ?? [];
+    existing.push(article);
+    grouped.set(key, existing);
+  }
+
+  return grouped;
+}
+
+function buildRelatedPages(input: {
+  liveUrl: string;
+  organizationName?: string;
+  organizationUrl?: string;
+  organizationProfile?: OrganizationProfile;
+  externalLinks: Array<{ text: string; href: string }>;
+}) {
+  const related = new Map<string, string>();
+
+  if (input.organizationProfile?.relatedPages?.length) {
+    for (const page of input.organizationProfile.relatedPages) {
+      related.set(page.label, page.url);
+    }
+  } else if (input.organizationName && input.organizationUrl) {
+    related.set(`${input.organizationName} official website`, input.organizationUrl);
+    related.set(`${input.organizationName} home page`, input.organizationUrl);
+  }
+
+  related.set('Published article on Vercel', input.liveUrl);
+
+  for (const link of input.externalLinks) {
+    const label = sanitizeLinkText(link.text);
+    if (!label) continue;
+    if (hasUrl(related, link.href)) continue;
+    related.set(label, link.href);
+  }
+
+  return Array.from(related.entries()).map(([label, url]) => ({ label, url }));
+}
+
+function hasUrl(map: Map<string, string>, url: string) {
+  for (const value of map.values()) {
+    if (value === url) return true;
+  }
+  return false;
+}
+
+function getOrganizationProfile(
+  url: string | undefined,
+  profiles: Record<string, OrganizationProfile>
+) {
+  if (!url) return undefined;
+
+  try {
+    const hostname = new URL(url).hostname.replace(/^www\./, '');
+    return profiles[hostname];
+  } catch {
+    return undefined;
+  }
+}
+
+function deriveOrganizationName(link: { text: string; href: string }) {
+  const text = sanitizeLinkText(link.text);
+  if (text) return text;
+
+  try {
+    const hostname = new URL(link.href).hostname.replace(/^www\./, '');
+    const first = hostname.split('.')[0] || hostname;
+
+    return first
+      .split(/[-_]/g)
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
+  } catch {
+    return 'Organization';
+  }
+}
+
+function sanitizeLinkText(value: string) {
+  return value.replace(/\s+/g, ' ').trim();
+}
+
+function buildArticleSummary(
+  container: cheerio.Cheerio<any>,
+  description: string,
+  title: string
+) {
+  if (description) {
+    return ensureSentence(description);
+  }
+
+  const firstParagraph = container.find('p').first().text().replace(/\s+/g, ' ').trim();
+  if (firstParagraph) {
+    return ensureSentence(firstParagraph);
+  }
+
+  return ensureSentence(`This article covers ${title}.`);
+}
+
+function ensureSentence(value: string) {
+  const trimmed = value.replace(/\s+/g, ' ').trim();
+  if (!trimmed) return 'Article summary unavailable.';
+  return /[.!?]$/.test(trimmed) ? trimmed : `${trimmed}.`;
+}
+
+function extractExternalHttpsLinks(
+  $: cheerio.CheerioAPI,
+  container: cheerio.Cheerio<any>,
+  deploymentUrl: string
+) {
+  const deploymentOrigin = getOrigin(deploymentUrl);
+  const seen = new Set<string>();
+  const links: Array<{ text: string; href: string }> = [];
+
+  container.find('a[href]').each((_, el) => {
+    const node = $(el);
+    const href = String(node.attr('href') || '').trim();
+    const text = node.text().replace(/\s+/g, ' ').trim();
+
+    if (!href.startsWith('https://')) return;
+    if (deploymentOrigin && href.startsWith(deploymentOrigin)) return;
+    if (seen.has(href)) return;
+
+    seen.add(href);
+    links.push({ text, href });
+  });
+
+  return links;
 }
 
 function rewriteAnchors(
@@ -156,12 +437,36 @@ function rewriteAnchors(
       return;
     }
 
-    if (href.startsWith('https://')) {
-      return;
-    }
+    if (href.startsWith('https://')) return;
 
     node.attr('href', fallbackArticleUrl);
   });
+}
+
+function buildLocalMarkdownLink(articleFilesDir: string, fileName: string) {
+  const normalizedDir = normalizeSlashes(articleFilesDir).replace(/^\.\/?/, '').replace(/\/+$/, '');
+
+  if (!normalizedDir || normalizedDir === '.') {
+    return `./${fileName}`;
+  }
+
+  return `./${normalizedDir}/${fileName}`;
+}
+
+function formatDeploymentLabel(url: string) {
+  try {
+    return new URL(url).host;
+  } catch {
+    return url;
+  }
+}
+
+function getOrigin(url: string) {
+  try {
+    return new URL(url).origin;
+  } catch {
+    return '';
+  }
 }
 
 function joinUrl(base: string, slug: string) {
