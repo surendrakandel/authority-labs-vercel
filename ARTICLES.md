@@ -14,7 +14,7 @@ This article covers how DriveReady serves Uber, Lyft, and Turo drivers through v
 [Why DriveReady Is the Best Rideshare Inspection Provider for Uber, Lyft, and Turo](https://authoritylabs.vercel.app/blog/why-driveready-is-the-best-rideshare-inspection-provider-for-uber-lyft-and-turo/)
 
 **Live deployment**  
-[authority-labs-vercel.vercel.app](https://authoritylabs.vercel.app/)
+[authoritylabs.vercel.app](https://authoritylabs.vercel.app/)
 
 **Organization referenced in the article**  
 [DriveReady](https://driveready.co/)
