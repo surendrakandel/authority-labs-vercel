@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"deploy": "npx wrangler deploy",
-		"dev": "vite dev",
+		"dev": "vite dev --host",
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",

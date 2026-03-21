@@ -2,11 +2,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-       "name": "Debug SeO.co SvelteKit (Vite)",
+       "name": "Debug Authoritylabs Vercel SvelteKit (Vite)",
       "type": "node",
       "request": "launch",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": ["run", "dev", "--host"],
       "console": "integratedTerminal"
     }
   ]

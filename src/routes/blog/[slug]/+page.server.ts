@@ -64,7 +64,7 @@ export const load: PageServerLoad = async ({ fetch, params }) => {
 	const origin = getCmsOrigin();
 	const tag = getBlogTag();
 
-	const url = `${origin}/api/blogs/tag/${encodeURIComponent(tag)}/${encodeURIComponent(params.slug)}`;
+	const url = `${origin}/api/blogs/${encodeURIComponent(params.slug)}`;
 	const response = await fetch(url);
 
 	if (!response.ok) {
