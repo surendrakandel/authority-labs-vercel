@@ -14,7 +14,7 @@
     </a>
   </div>
   
-  <div class="flex-none">
+  <div class="flex-none hidden md:block">
     <ul class="menu menu-horizontal px-1 font-bold text-sm uppercase tracking-widest">
       <li><a href="/about">Our Agency</a></li>
       <li><a href="/contact">Partner with Us</a></li>
