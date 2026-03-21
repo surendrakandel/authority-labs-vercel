@@ -10,7 +10,7 @@ export default defineConfig({
       buildDir: 'build',
       blogDir: 'blog',
       outputDir: '.',
-      fallbackArticleBaseUrl: 'https://authority-labs-vercel.vercel.app/blog/'
+      fallbackArticleBaseUrl: 'https://authoritylabs.vercel.app/blog/'
     })],
 	test: {
 		expect: { requireAssertions: true },
