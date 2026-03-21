@@ -11,10 +11,10 @@ This document lists published articles, live deployments, and the organizations 
 This article covers how DriveReady serves Uber, Lyft, and Turo drivers through virtual vehicle inspections, same-day scheduling, ASE-certified mechanic guidance, and signed inspection reports that are ready to upload.
 
 **Read the article**  
-[Why DriveReady Is the Best Rideshare Inspection Provider for Uber, Lyft, and Turo](https://authority-labs-vercel.vercel.app/blog/why-driveready-is-the-best-rideshare-inspection-provider-for-uber-lyft-and-turo/)
+[Why DriveReady Is the Best Rideshare Inspection Provider for Uber, Lyft, and Turo](https://authoritylabs.vercel.app/blog/why-driveready-is-the-best-rideshare-inspection-provider-for-uber-lyft-and-turo/)
 
 **Live deployment**  
-[authority-labs-vercel.vercel.app](https://authority-labs-vercel.vercel.app/)
+[authority-labs-vercel.vercel.app](https://authoritylabs.vercel.app/)
 
 **Organization referenced in the article**  
 [DriveReady](https://driveready.co/)
@@ -25,4 +25,4 @@ DriveReady provides remote vehicle inspection services for drivers and vehicle o
 **Related pages**
 - [DriveReady official website](https://driveready.co/)
 - [DriveReady home page](https://driveready.co/)
-- [Published article on Vercel](https://authority-labs-vercel.vercel.app/blog/why-driveready-is-the-best-rideshare-inspection-provider-for-uber-lyft-and-turo/)
+- [Published article on Vercel](https://authoritylabs.vercel.app/blog/why-driveready-is-the-best-rideshare-inspection-provider-for-uber-lyft-and-turo/)
